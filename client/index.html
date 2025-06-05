@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Helios - Zakazivanje</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/assets/icon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/icon-512.png">
+    <link rel="apple-touch-icon" href="/assets/icon-192.png">
+    <meta name="theme-color" content="#6366F1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <h1 class="logo">Helios</h1>
+            <h2 class="login-title">Dobrodošli</h2>
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label class="form-label">Korisničko ime</label>
+                    <input type="text" id="login-username" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Lozinka</label>
+                    <input type="password" id="login-password" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Prijavite se</button>
+            </form>
+            <div id="login-error" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="app" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">Helios</h1>
+                <div class="user-badge">
+                    <div class="user-avatar" id="user-avatar">D</div>
+                    <span id="user-name">Dragana</span>
+                    <button class="btn-logout" onclick="logout()">⎋</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="switchView('calendar')">
+                <span class="icon">📅</span>
+                <span>Kalendar</span>
+            </button>
+            <button class="nav-tab" onclick="switchView('clients')">
+                <span class="icon">👥</span>
+                <span>Klijenti</span>
+            </button>
+            <button class="nav-tab" onclick="switchView('services')">
+                <span class="icon">💅</span>
+                <span>Usluge</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Calendar View -->
+            <div id="calendar-view" class="view active">
+                <div class="calendar-controls">
+                    <div class="date-nav">
+                        <button class="btn-nav" onclick="changeDate(-1)">‹</button>
+                        <div class="current-date" id="current-date" onclick="openDatePicker()">Danas</div>
+                        <button class="btn-nav" onclick="changeDate(1)">›</button>
+                    </div>
+                    <div class="view-toggle">
+                        <button class="active" onclick="setCalendarView('day')">Dan</button>
+                        <button onclick="setCalendarView('week')">Nedelja</button>
+                    </div>
+                    <button class="today-btn" onclick="goToToday()">Danas</button>
+                </div>
+
+                <div class="schedule-container">
+                    <div class="week-view-legend" id="week-legend" style="display: none;">
+                        <div class="legend-item">
+                            <div class="legend-color dragana"></div>
+                            <span>Dragana</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color snezana"></div>
+                            <span>Snežana</span>
+                        </div>
+                    </div>
+                    <div class="schedule-header" id="schedule-header">
+                        <div class="time-header">Vreme</div>
+                        <div class="employee-columns" id="header-columns">
+                            <div class="employee-header dragana">Dragana</div>
+                            <div class="employee-header snezana">Snežana</div>
+                        </div>
+                    </div>
+                    <div class="schedule-body">
+                        <div class="time-grid" id="time-grid">
+                            <div class="time-column" id="time-column"></div>
+                            <div class="schedule-grid" id="schedule-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients View -->
+            <div id="clients-view" class="view">
+                <div class="view-header">
+                    <div class="search-container">
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" placeholder="Pretraži klijente po imenu, telefonu..." onkeyup="searchClients(this.value)">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-add" onclick="openNewClient()">
+                        <span>+</span> Novi klijent
+                    </button>
+                </div>
+
+                <div class="stats-grid" id="client-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3>Ukupno klijenata</h3>
+                            <div class="stat-value" id="total-clients">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✨</div>
+                        <div class="stat-content">
+                            <h3>Novi ovog meseca</h3>
+                            <div class="stat-value" id="new-clients">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content">
+                            <h3>Termina ove nedelje</h3>
+                            <div class="stat-value" id="week-appointments">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clients-grid" id="clients-list"></div>
+            </div>
+
+            <!-- Services View -->
+            <div id="services-view" class="view">
+                <div class="view-header">
+                    <h2>Usluge</h2>
+                    <button class="btn btn-primary btn-add" onclick="openNewService()">
+                        <span>+</span> Nova usluga
+                    </button>
+                </div>
+                <div class="services-grid" id="services-list"></div>
+            </div>
+        </main>
+
+        <!-- FAB -->
+        <button class="fab" onclick="openNewAppointment()">+</button>
+
+        <!-- Appointment Modal -->
+        <div id="appointment-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modal-title">Novi termin</h2>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="appointment-form">
+                        <div class="form-group">
+                            <label class="form-label">Usluga</label>
+                            <select class="form-select" id="service" required onchange="onServiceChange()">
+                                <option value="">Izaberite uslugu</option>
+                            </select>
+                        </div>
+
+                        <div id="single-client-section">
+                            <div class="form-group">
+                                <label class="form-label">Klijent</label>
+                                <div class="client-select-wrapper">
+                                    <select class="form-select" id="client-select" onchange="onClientSelect()">
+                                        <option value="">Izaberite klijenta</option>
+                                        <option value="new">➕ Dodaj novog klijenta</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="client-details" style="display: none;">
+                                <div class="form-group">
+                                    <label class="form-label">Ime klijenta</label>
+                                    <input type="text" class="form-input" id="client-name" placeholder="Unesite ime">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Telefon</label>
+                                    <input type="tel" class="form-input" id="client-phone" placeholder="06x xxx xxxx">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="group-clients-section" style="display: none;">
+                            <div class="form-group">
+                                <label class="form-label">Učesnici (<span id="participant-count">0</span>/<span id="max-participants">8</span>)</label>
+                                <div class="participants-list" id="participants-list"></div>
+                                <button type="button" class="btn-add-participant" onclick="addParticipant()">+ Dodaj učesnika</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Datum</label>
+                            <input type="text" class="form-input" id="appointment-date" required readonly onclick="openAppointmentDatePicker()" placeholder="Izaberite datum">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Vreme</label>
+                            <div class="time-selector">
+                                <select class="form-select time-input" id="appointment-hour" required>
+                                    <option value="">Sat</option>
+                                </select>
+                                <span class="time-separator">:</span>
+                                <select class="form-select time-input" id="appointment-minute" required>
+                                    <option value="">Min</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Zaposleni</label>
+                            <select class="form-select" id="employee">
+                                <option value="1">Dragana</option>
+                                <option value="2">Snežana</option>
+                            </select>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Otkaži</button>
+                            <button type="submit" class="btn btn-primary">Zakaži termin</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Picker Modal -->
+        <div id="date-picker-modal" class="modal">
+            <div class="modal-content date-picker-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Izaberite datum</h2>
+                    <button class="modal-close" onclick="closeDatePicker()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="date-picker-header">
+                        <button class="date-picker-nav" onclick="changePickerMonth(-1)">‹</button>
+                        <div class="date-picker-month" id="picker-month-year">Decembar 2024</div>
+                        <button class="date-picker-nav" onclick="changePickerMonth(1)">›</button>
+                    </div>
+                    <div class="date-picker-weekdays">
+                        <div>Pon</div>
+                        <div>Uto</div>
+                        <div>Sre</div>
+                        <div>Čet</div>
+                        <div>Pet</div>
+                        <div>Sub</div>
+                        <div>Ned</div>
+                    </div>
+                    <div class="date-picker-days" id="date-picker-days">
+                        <!-- Days will be generated here -->
+                    </div>
+                    <div class="date-picker-footer">
+                        <button class="btn btn-secondary" onclick="selectToday()">Danas</button>
+                        <button class="btn btn-primary" onclick="closeDatePicker()">Zatvori</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointment Date Picker Modal -->
+        <div id="appointment-date-picker-modal" class="modal">
+            <div class="modal-content date-picker-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Izaberite datum termina</h2>
+                    <button class="modal-close" onclick="closeAppointmentDatePicker()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="date-picker-header">
+                        <button class="date-picker-nav" onclick="changeAppointmentPickerMonth(-1)">‹</button>
+                        <div class="date-picker-month" id="appointment-picker-month-year">Decembar 2024</div>
+                        <button class="date-picker-nav" onclick="changeAppointmentPickerMonth(1)">›</button>
+                    </div>
+                    <div class="date-picker-weekdays">
+                        <div>Pon</div>
+                        <div>Uto</div>
+                        <div>Sre</div>
+                        <div>Čet</div>
+                        <div>Pet</div>
+                        <div>Sub</div>
+                        <div>Ned</div>
+                    </div>
+                    <div class="date-picker-days" id="appointment-date-picker-days">
+                        <!-- Days will be generated here -->
+                    </div>
+                    <div class="date-picker-footer">
+                        <button class="btn btn-secondary" onclick="selectAppointmentToday()">Danas</button>
+                        <button class="btn btn-primary" onclick="closeAppointmentDatePicker()">Zatvori</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Detail Modal -->
+        <div id="client-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="client-modal-title">Detalji klijenta</h2>
+                    <button class="modal-close" onclick="closeClientModal()">×</button>
+                </div>
+                <div class="modal-body" id="client-modal-body">
+                    <!-- Client details will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Form Modal -->
+        <div id="client-form-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="client-form-title">Novi klijent</h2>
+                    <button class="modal-close" onclick="closeClientFormModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="client-form">
+                        <input type="hidden" id="client-id">
+                        <div class="form-group">
+                            <label class="form-label">Ime i prezime *</label>
+                            <input type="text" class="form-input" id="client-form-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Telefon *</label>
+                            <input type="tel" class="form-input" id="client-form-phone" placeholder="06x xxx xxxx" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="client-form-email" placeholder="email@example.com">
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-secondary" onclick="closeClientFormModal()">Otkaži</button>
+                            <button type="submit" class="btn btn-primary">Sačuvaj</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Form Modal -->
+        <div id="service-form-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="service-form-title">Nova usluga</h2>
+                    <button class="modal-close" onclick="closeServiceFormModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="service-form" onsubmit="handleServiceSubmit(event); return false;">
+                        <input type="hidden" id="service-id">
+                        <div class="form-group">
+                            <label class="form-label">Naziv usluge *</label>
+                            <input type="text" class="form-input" id="service-form-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Trajanje (minuti) *</label>
+                            <select class="form-select" id="service-form-duration" required>
+                                <option value="15">15 minuta</option>
+                                <option value="30">30 minuta</option>
+                                <option value="45">45 minuta</option>
+                                <option value="60">60 minuta</option>
+                                <option value="90">90 minuta</option>
+                                <option value="120">120 minuta</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cena (RSD) *</label>
+                            <input type="number" class="form-input" id="service-form-price" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-checkbox">
+                                <input type="checkbox" id="service-form-group" onchange="toggleGroupOptions()">
+                                <span>Grupna usluga</span>
+                            </label>
+                        </div>
+                        <div class="form-group" id="max-participants-group" style="display: none;">
+                            <label class="form-label">Maksimalan broj učesnika</label>
+                            <input type="number" class="form-input" id="service-form-max" min="2" max="20" value="8">
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-secondary" onclick="closeServiceFormModal()">Otkaži</button>
+                            <button type="submit" class="btn btn-primary">Sačuvaj</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js" defer></script>
+    <script src="js/utils.js" defer></script>
+    <script src="js/calendar.js" defer></script>
+    <script src="js/clients.js" defer></script>
+    <script src="js/services.js" defer></script>
+    <script src="js/app.js" defer></script>
+</body>
+</html> 

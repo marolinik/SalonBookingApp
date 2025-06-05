@@ -1,0 +1,187 @@
+Sistem za Zakazivanje Termina - Helios Salon
+Pojednostavljen PRD za salon sa 2 zaposlena
+1. Pregled Sistema
+Web aplikacija za zakazivanje termina za mali salon lepote i fitnes centar "Helios". Fokus je na jednostavnosti korišćenja, posebno na mobilnim telefonima.
+Korisnici sistema:
+
+Dragana Obradović (username: dragana)
+Snežana Stamenković (username: snezana)
+
+2. Osnove Funkcionalnosti
+2.1 Kalendar (GLAVNA FUNKCIONALNOST)
+
+Prikaz: Dnevni i nedeljni prikaz (mesečni nije potreban za 2 osobe)
+Mobilni dizajn: Veliki, lako čitljivi termini, optimizovano za iPhone
+Jednostavno prebacivanje: Swipe levo/desno za promenu dana
+Boje: Različite boje za Draganu i Snežanu
+Brzi pregled: Vidljivo odmah ko ima koliko termina danas
+
+2.2 Zakazivanje Termina
+Proces u 3 koraka:
+
+Klik na slobodno vreme u kalendaru
+Unos osnovnih podataka:
+
+Ime klijenta (za grupne termine može biti više klijenata)
+Telefon (za SMS)
+Usluga (dropdown lista)
+Trajanje (automatski na osnovu usluge)
+Broj učesnika (za grupne treninge)
+
+
+Potvrda - termin se pojavljuje u kalendaru
+
+Grupni termini:
+
+Mogućnost dodavanja više klijenata na isti termin
+Prikaz broja učesnika na terminu (npr. "Grupni trening 5/8")
+Limit učesnika po tipu usluge
+
+Statusi termina:
+
+Zakazan (plava boja)
+Završen (zelena boja + označeno plaćeno)
+Otkazan (crvena boja, prebrisano)
+
+2.3 Upravljanje Klijentima
+
+Jednostavna lista klijenata sa pretragom
+Podaci: Ime, telefon, email
+Istorija: Poslednji termini kada se klikne na klijenta
+Brzo zakazivanje: Dugme "Zakaži novi termin" iz profila klijenta
+
+2.4 SMS Notifikacije
+Automatske poruke:
+
+Potvrda - odmah nakon zakazivanja
+Podsetnik - dan pre termina u 18h
+
+Primer poruke:
+Poštovani/a [IME], 
+Vaš termin za [USLUGA] je zakazan za [DATUM] u [VREME]h kod [ZAPOSLENI].
+Salon Helios
+3. Podešavanja (Minimalna)
+3.1 Usluge i Cene
+Lista usluga sa:
+
+Naziv usluge
+Trajanje (15, 30, 45, 60 min)
+Cena
+
+Primer:
+
+Manikir - 30 min - 1500 din
+Masaža - 60 min - 3000 din
+Grupni trening - 45 min - 800 din
+
+3.2 Radno Vreme
+
+Standardno: 08:00 - 20:00 (ponedeljak-petak)
+Praznici: Jednostavno označavanje neradnih dana
+Odmori: Blokiranje perioda za godišnji odmor
+
+4. Tehnička Jednostavnost
+4.1 Arhitektura
+
+Monolitna aplikacija (bez mikroservisa)
+Jedna baza podataka sa 5-6 tabela maksimalno
+Bez komplikovanih API-ja osim za SMS
+
+4.2 Tehnologije (Preporučeno)
+
+Frontend: Običan HTML/CSS/JavaScript (bez frameworka)
+Backend: Node.js sa Express ili Python sa Flask
+Baza: SQLite za početak (lako za migraciju kasnije)
+Hosting: Render.com ili Vercel
+
+4.3 Baza Podataka (Samo osnovno)
+korisnici (id, ime, username, password)
+klijenti (id, ime, telefon, email)
+usluge (id, naziv, trajanje, cena)
+termini (id, naziv_termina, usluga_id, korisnik_id, datum_vreme, status, placeno, max_ucesnika)
+termin_klijenti (termin_id, klijent_id)
+sms_log (id, termin_id, tip_poruke, poslato)
+5. Mobilna Optimizacija
+5.1 Dizajn Principi
+
+Veliki dugmići (minimum 44x44 piksela)
+Jasne boje za različite statuse
+Minimalno skrolovanje
+Brze akcije - maksimalno 3 klika za bilo šta
+
+5.2 Offline Podrška
+
+PWA sa osnovnim keširanje
+Sinhronizacija kada se vrati internet
+
+6. MVP Funkcionalnosti (Za prvu verziju)
+MORA IMATI:
+
+Kalendar sa terminima
+Dodavanje/menjanje/brisanje termina
+Lista klijenata
+SMS potvrda i podsetnik
+Mobilni prikaz
+
+MOŽE ČEKATI:
+
+Detaljni izveštaji
+Ponavljajući termini
+Popusti
+Negativni poeni
+Različite role korisnika
+
+7. Korisničko Iskustvo
+7.1 Početna Stranica
+
+Direktno otvara današnji dan u kalendaru
+Broj termina za danas vidljiv odmah
+Jedno dugme za "Novi termin"
+
+7.2 Brze Akcije
+
+Swipe levo na terminu = označi kao završen
+Swipe desno = pozovi klijenta
+Dugi pritisak = opcije (izmeni, otkaži)
+
+8. SMS Integracija (Jednostavno)
+javascript// Primer jednostavne funkcije za SMS
+async function posaljiSMS(brojTelefona, poruka) {
+  const response = await fetch('https://api.smsagent.rs/v1/sms/bulk', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer API_KLJUC',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      to: [brojTelefona],
+      message: poruka,
+      from: 'Helios'
+    })
+  });
+}
+9. Implementacija - Korak po Korak
+Faza 1 (1-2 nedelje):
+
+Osnovna autentifikacija
+Kalendarski prikaz
+Dodavanje/brisanje termina
+
+Faza 2 (1 nedelja):
+
+Lista klijenata
+Povezivanje klijenata sa terminima
+Osnovni mobilni dizajn
+
+Faza 3 (1 nedelja):
+
+SMS integracija
+Automatske notifikacije
+Finalno testiranje
+
+10. Održavanje
+
+Backup baze: Automatski svaki dan
+Jednostavni log: Ko je šta radio i kada
+Minimalne zavisnosti: Što manje biblioteka
+Čist kod: Komentari na srpskom za lakše razumevanje

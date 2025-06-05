@@ -1,0 +1,25 @@
+{
+  "name": "helios",
+  "version": "1.0.0",
+  "description": "Helios Salon Booking System",
+  "scripts": {
+    "install": "cd server && npm install",
+    "start": "cd server && npm start",
+    "dev": "cd server && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/helios.git"
+  },
+  "keywords": [
+    "booking",
+    "salon",
+    "appointment",
+    "scheduling"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
