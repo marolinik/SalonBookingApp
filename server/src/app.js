@@ -18,7 +18,7 @@ const smsService = require('./services/sms');
 
 // Create Express app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT) || 3000;
 
 // Middleware
 app.use(cors());
