@@ -155,6 +155,7 @@ router.post('/', authMiddleware, async (req, res) => {
             let clientId;
             
             // Proveri da li klijent već postoji
+            console.log('Checking for existing client with phone:', client.telefon);
             const existingClient = await getOne(
                 'SELECT id FROM clients WHERE telefon = ?', 
                 [client.telefon]
@@ -170,10 +171,16 @@ router.post('/', authMiddleware, async (req, res) => {
                 );
             } else {
                 // Kreiraj novog klijenta
+                console.log('Creating new client with data:', {
+                    ime: client.ime,
+                    telefon: client.telefon,
+                    email: client.email || null
+                });
                 const clientResult = await runQuery(
                     'INSERT INTO clients (ime, telefon, email) VALUES (?, ?, ?)',
                     [client.ime, client.telefon, client.email || null]
                 );
+                console.log('Client creation result:', clientResult);
                 clientId = clientResult.id;
             }
             
