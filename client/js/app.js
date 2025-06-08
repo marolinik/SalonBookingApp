@@ -471,11 +471,13 @@ async function handleAppointmentSubmit(e) {
     };
     
     try {
+        console.log('Sending appointment data:', appointmentData);
         await appointmentsAPI.create(appointmentData);
         closeModal();
         showToast('Termin uspešno zakazan! SMS potvrda poslata.');
         await renderCalendar(); // Refresh calendar
     } catch (error) {
+        console.error('Error creating appointment:', error);
         showToast(error.message || 'Greška pri zakazivanju termina');
     }
 }

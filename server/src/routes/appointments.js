@@ -103,13 +103,17 @@ router.post('/', authMiddleware, async (req, res) => {
             user_id 
         } = req.body;
         
+        console.log('Creating appointment with data:', { service_id, datum_vreme, clients, user_id });
+        
         // Validacija
         if (!service_id || !datum_vreme || !clients || clients.length === 0) {
             return res.status(400).json({ error: 'Svi podaci su obavezni' });
         }
         
         // Dohvati uslugu
+        console.log('Fetching service with ID:', service_id);
         const service = await getOne('SELECT * FROM services WHERE id = ?', [service_id]);
+        console.log('Service found:', service);
         if (!service) {
             return res.status(404).json({ error: 'Usluga nije pronađena' });
         }
@@ -122,6 +126,14 @@ router.post('/', authMiddleware, async (req, res) => {
         }
         
         // Kreiraj termin
+        console.log('Creating appointment with values:', {
+            naziv_termina: service.naziv,
+            service_id,
+            user_id: user_id || req.user.id,
+            datum_vreme,
+            max_ucesnika: service.max_participants
+        });
+        
         const result = await runQuery(`
             INSERT INTO appointments (
                 naziv_termina, service_id, user_id, datum_vreme, max_ucesnika
@@ -134,10 +146,12 @@ router.post('/', authMiddleware, async (req, res) => {
             service.max_participants
         ]);
         
+        console.log('Appointment created, result:', result);
         const appointmentId = result.id;
         
         // Dodaj klijente
         for (const client of clients) {
+            console.log('Processing client:', client);
             let clientId;
             
             // Proveri da li klijent već postoji
@@ -145,6 +159,7 @@ router.post('/', authMiddleware, async (req, res) => {
                 'SELECT id FROM clients WHERE telefon = ?', 
                 [client.telefon]
             );
+            console.log('Existing client check:', existingClient);
             
             if (existingClient) {
                 clientId = existingClient.id;
@@ -169,6 +184,7 @@ router.post('/', authMiddleware, async (req, res) => {
             );
             
             // Pošalji SMS potvrdu
+            console.log('Preparing SMS data, req.user:', req.user);
             const appointmentData = {
                 id: appointmentId,
                 service_name: service.naziv,
