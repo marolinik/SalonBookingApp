@@ -19,8 +19,17 @@ async function apiRequest(endpoint, options = {}) {
         }
     };
 
+    console.log('API Request:', {
+        url: `${API_BASE_URL}${endpoint}`,
+        method: config.method || 'GET',
+        body: config.body,
+        headers: config.headers
+    });
+
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+        
+        console.log('API Response Status:', response.status);
         
         if (response.status === 401) {
             // Token expired or invalid
@@ -29,9 +38,18 @@ async function apiRequest(endpoint, options = {}) {
             return;
         }
 
-        const data = await response.json();
+        const text = await response.text();
+        let data;
+        
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('Failed to parse response:', text);
+            throw new Error('Invalid server response');
+        }
         
         if (!response.ok) {
+            console.error('API Error Response:', data);
             throw new Error(data.error || 'API greška');
         }
         

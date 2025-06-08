@@ -176,14 +176,21 @@ async function runQuery(query, params = []) {
         let pgQuery = convertQuery(query, params);
         
         // Add RETURNING id if it's an INSERT without RETURNING
-        if (pgQuery.toLowerCase().includes('insert') && !pgQuery.toLowerCase().includes('returning')) {
+        // BUT skip for appointment_clients table which doesn't have id column
+        const skipReturning = pgQuery.toLowerCase().includes('appointment_clients');
+        
+        if (pgQuery.toLowerCase().includes('insert') && 
+            !pgQuery.toLowerCase().includes('returning') &&
+            !skipReturning) {
             pgQuery += ' RETURNING id';
         }
         
         const result = await pool.query(pgQuery, params);
         
         // Za INSERT queries sa RETURNING
-        if (pgQuery.toLowerCase().includes('insert') && result.rows.length > 0) {
+        if (pgQuery.toLowerCase().includes('insert') && 
+            !skipReturning && 
+            result.rows.length > 0) {
             return { id: result.rows[0].id, ...result.rows[0] };
         }
         

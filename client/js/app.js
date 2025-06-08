@@ -432,18 +432,31 @@ async function handleAppointmentSubmit(e) {
         if (clientSelect.value === 'new' || clientSelect.value === '') {
             // New client or manual entry
             const name = document.getElementById('client-name').value;
-            const phone = document.getElementById('client-phone').value;
+            let phone = document.getElementById('client-phone').value;
             
             if (!name || !phone) {
                 showToast('Molimo unesite podatke klijenta');
                 return;
             }
             
+            // Normalize phone number - remove spaces and ensure it starts with 0
+            phone = phone.replace(/\s/g, '');
+            if (phone.length === 9 && !phone.startsWith('0')) {
+                phone = '0' + phone;
+            }
+            
             clientsData.push({ ime: name, telefon: phone });
         } else {
             // Existing client
             const name = document.getElementById('client-name').value;
-            const phone = document.getElementById('client-phone').value;
+            let phone = document.getElementById('client-phone').value;
+            
+            // Normalize phone number
+            phone = phone.replace(/\s/g, '');
+            if (phone.length === 9 && !phone.startsWith('0')) {
+                phone = '0' + phone;
+            }
+            
             clientsData.push({ ime: name, telefon: phone });
         }
     }
