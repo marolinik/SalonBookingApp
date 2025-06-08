@@ -15,13 +15,10 @@ router.get('/', authMiddleware, async (req, res) => {
                 s.naziv as service_name,
                 s.trajanje as duration,
                 s.is_group,
-                u.ime as employee_name,
-                GROUP_CONCAT(c.ime || '|' || c.telefon) as clients
+                u.ime as employee_name
             FROM appointments a
             LEFT JOIN services s ON a.service_id = s.id
             LEFT JOIN users u ON a.user_id = u.id
-            LEFT JOIN appointment_clients ac ON a.id = ac.appointment_id
-            LEFT JOIN clients c ON ac.client_id = c.id
         `;
         
         const params = [];
@@ -34,22 +31,24 @@ router.get('/', authMiddleware, async (req, res) => {
             params.push(startDate, endDate);
         }
         
-        query += " GROUP BY a.id ORDER BY a.datum_vreme";
+        query += " ORDER BY a.datum_vreme";
         
         const appointments = await getAll(query, params);
         
-        // Formatiraj klijente
-        const formattedAppointments = appointments.map(apt => {
-            const clients = apt.clients ? apt.clients.split(',').map(c => {
-                const [ime, telefon] = c.split('|');
-                return { ime, telefon };
-            }) : [];
+        // Za svaki termin, dohvati klijente posebno
+        const formattedAppointments = await Promise.all(appointments.map(async (apt) => {
+            const clients = await getAll(`
+                SELECT c.id, c.ime, c.telefon 
+                FROM clients c
+                JOIN appointment_clients ac ON c.id = ac.client_id
+                WHERE ac.appointment_id = ?
+            `, [apt.id]);
             
             return {
                 ...apt,
                 clients
             };
-        });
+        }));
         
         res.json(formattedAppointments);
     } catch (error) {

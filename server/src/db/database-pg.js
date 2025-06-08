@@ -173,7 +173,7 @@ async function getOne(query, params = []) {
 
 async function runQuery(query, params = []) {
     try {
-        const pgQuery = convertQuery(query, params);
+        let pgQuery = convertQuery(query, params);
         
         // Add RETURNING id if it's an INSERT without RETURNING
         if (pgQuery.toLowerCase().includes('insert') && !pgQuery.toLowerCase().includes('returning')) {
@@ -183,7 +183,7 @@ async function runQuery(query, params = []) {
         const result = await pool.query(pgQuery, params);
         
         // Za INSERT queries sa RETURNING
-        if (query.toLowerCase().includes('insert') && result.rows.length > 0) {
+        if (pgQuery.toLowerCase().includes('insert') && result.rows.length > 0) {
             return { id: result.rows[0].id, ...result.rows[0] };
         }
         

@@ -334,7 +334,7 @@
                     <button class="modal-close" onclick="closeClientFormModal()">×</button>
                 </div>
                 <div class="modal-body">
-                    <form id="client-form">
+                    <form id="client-form" onsubmit="handleClientSubmit(event); return false;">
                         <input type="hidden" id="client-id">
                         <div class="form-group">
                             <label class="form-label">Ime i prezime *</label>
