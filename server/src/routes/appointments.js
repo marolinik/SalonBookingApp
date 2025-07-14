@@ -190,16 +190,16 @@ router.post('/', authMiddleware, async (req, res) => {
                 [appointmentId, clientId]
             );
             
-            // Pošalji SMS potvrdu
-            console.log('Preparing SMS data, req.user:', req.user);
-            const appointmentData = {
-                id: appointmentId,
-                service_name: service.naziv,
-                datum_vreme,
-                employee_name: req.user.ime
-            };
+            // SMS potvrda je onemogućena - šalje se samo podsetnik dan pre termina
+            // console.log('Preparing SMS data, req.user:', req.user);
+            // const appointmentData = {
+            //     id: appointmentId,
+            //     service_name: service.naziv,
+            //     datum_vreme,
+            //     employee_name: req.user.ime
+            // };
             
-            await smsService.sendAppointmentConfirmation(appointmentData, client);
+            // await smsService.sendAppointmentConfirmation(appointmentData, client);
         }
         
         res.status(201).json({ 
@@ -259,26 +259,26 @@ router.put('/:id', authMiddleware, async (req, res) => {
             params
         );
         
-        // Ako je termin otkazan, pošalji SMS
-        if (status === 'cancelled') {
-            const clients = await getAll(`
-                SELECT c.* FROM clients c
-                JOIN appointment_clients ac ON c.id = ac.client_id
-                WHERE ac.appointment_id = ?
-            `, [appointmentId]);
+        // SMS otkazivanja je onemogućen - šalje se samo podsetnik dan pre termina
+        // if (status === 'cancelled') {
+        //     const clients = await getAll(`
+        //         SELECT c.* FROM clients c
+        //         JOIN appointment_clients ac ON c.id = ac.client_id
+        //         WHERE ac.appointment_id = ?
+        //     `, [appointmentId]);
             
-            const appointmentData = await getOne(`
-                SELECT a.*, s.naziv as service_name, u.ime as employee_name
-                FROM appointments a
-                JOIN services s ON a.service_id = s.id
-                JOIN users u ON a.user_id = u.id
-                WHERE a.id = ?
-            `, [appointmentId]);
+        //     const appointmentData = await getOne(`
+        //         SELECT a.*, s.naziv as service_name, u.ime as employee_name
+        //         FROM appointments a
+        //         JOIN services s ON a.service_id = s.id
+        //         JOIN users u ON a.user_id = u.id
+        //         WHERE a.id = ?
+        //     `, [appointmentId]);
             
-            for (const client of clients) {
-                await smsService.sendAppointmentCancellation(appointmentData, client);
-            }
-        }
+        //     for (const client of clients) {
+        //         await smsService.sendAppointmentCancellation(appointmentData, client);
+        //     }
+        // }
         
         res.json({ message: 'Termin uspešno ažuriran' });
         
