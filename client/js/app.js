@@ -1,8 +1,9 @@
-// Global state
+// Global variables
 let currentUser = null;
+let currentView = 'calendar';
+// currentDate je već definisan u calendar.js
 let services = [];
-let currentDate = new Date();
-let currentView = 'day';
+let clients = [];
 let participantCount = 0;
 
 // Initialize app

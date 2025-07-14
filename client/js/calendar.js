@@ -1,6 +1,6 @@
 // Global variables for mobile view
 let currentDate = new Date();
-let currentView = 'day';
+let calendarViewMode = 'day';  // Preimenovano iz currentView
 let selectedDate = null;
 let selectedAppointmentDate = null;
 
@@ -10,7 +10,7 @@ let selectedAppointmentDate = null;
 async function renderCalendar() {
     const weekLegend = document.getElementById('week-legend');
     
-    if (currentView === 'day') {
+    if (calendarViewMode === 'day') {
         weekLegend.classList.remove('active');
         await renderDayView();
     } else {
@@ -30,7 +30,7 @@ function updateCurrentTimeLine() {
     if (existingLine) existingLine.remove();
     
     // Only show if viewing today
-    if (!isDateToday(currentDate) && currentView === 'day') return;
+    if (!isDateToday(currentDate) && calendarViewMode === 'day') return;
     
     const now = new Date();
     const currentHour = now.getHours();
@@ -47,7 +47,7 @@ function updateCurrentTimeLine() {
     timeLine.className = 'current-time-line';
     timeLine.style.top = `${topPosition}px`;
     
-    if (currentView === 'day') {
+    if (calendarViewMode === 'day') {
         document.querySelector('.schedule-grid')?.appendChild(timeLine);
     } else {
         // For week view, add to today's column
@@ -331,7 +331,7 @@ function createAppointmentElement(appointment, employee) {
     div.onclick = () => showAppointmentDetails(appointment);
     
     // Check if we're in week view
-    const isWeekView = currentView === 'week';
+    const isWeekView = calendarViewMode === 'week';
     
     // Get client name(s)
     let clientName = 'Nepoznat';
@@ -446,14 +446,14 @@ function setCalendarView(view) {
         return;
     }
     
-    currentView = view;
+    calendarViewMode = view;
     document.querySelectorAll('.view-toggle button').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
     renderCalendar();
 }
 
 function changeDate(direction) {
-    if (currentView === 'day') {
+    if (calendarViewMode === 'day') {
         currentDate.setDate(currentDate.getDate() + direction);
     } else {
         currentDate.setDate(currentDate.getDate() + (direction * 7));
@@ -469,7 +469,7 @@ function goToToday() {
 function updateDateDisplay() {
     const dateElement = document.getElementById('current-date');
     
-    if (currentView === 'day') {
+    if (calendarViewMode === 'day') {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const dateStr = currentDate.toLocaleDateString('sr-Latn-RS', options);
         const isToday = isDateToday(currentDate);

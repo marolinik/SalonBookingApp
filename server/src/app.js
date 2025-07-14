@@ -67,7 +67,7 @@ app.post('/api/debug/create-users', async (req, res) => {
         // Obriši postojeće korisnike
         await runQuery('DELETE FROM users');
         
-        // Kreiraj nove korisnike
+        // Kreiraj nove korisnike sa ispravnim imenima
         await runQuery(
             'INSERT INTO users (username, password, ime) VALUES (?, ?, ?)',
             ['dragana', await bcrypt.hash('dragana123', 10), 'Dragana Obradović']
