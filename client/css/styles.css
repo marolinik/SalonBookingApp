@@ -1633,21 +1633,26 @@ body {
         padding: 0.5rem 0.25rem;
     }
     
-    /* Show only active employee in mobile day view */
+    /* Prikaži oba zaposlena na mobilnim uređajima */
     .schedule-grid {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1px;
     }
     
     .employee-columns {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
     }
     
-    .employee-header:not(.active) {
-        display: none;
+    .employee-header {
+        display: block;
+        font-size: 0.875rem;
+        padding: 0.5rem;
     }
     
-    .employee-column:not(.active) {
-        display: none;
+    .employee-column {
+        display: block;
+        min-width: 0; /* Allow columns to shrink */
     }
     
     /* Mobile appointment cards */
@@ -1749,38 +1754,70 @@ body {
 /* Remove old mobile styles that hide columns */
 @media (max-width: 768px) {
     .employee-header {
-        display: none;
+        display: block !important;
     }
     
     .employee-columns {
         background: transparent;
     }
-    
-    /* Remove the old hiding rules */
-    .employee-header:not(.active) {
-        display: none;
-    }
-    
-    .employee-column:not(.active) {
-        display: none;
-    }
 }
 
 /* iPhone specific adjustments */
 @media screen and (max-width: 414px) {
+    /* Manji fontovi za iPhone */
     .appointment-card {
-        padding: 2px 4px;
+        padding: 2px 3px;
         min-height: 24px;
+        font-size: 0.6rem;
     }
     
     .appointment-text {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         letter-spacing: -0.02em;
+        line-height: 1.1;
     }
     
     .appointment-badge {
         font-size: 0.5rem;
         padding: 1px 2px;
+    }
+    
+    /* Prilagodi zaglavlja */
+    .employee-header {
+        font-size: 0.75rem;
+        padding: 0.25rem;
+    }
+    
+    /* Smanji vreme kolonu na iPhone */
+    .time-column {
+        width: 40px;
+    }
+    
+    .time-slot {
+        font-size: 0.6rem;
+        padding: 0.5rem 0.1rem;
+    }
+    
+    /* Prilagodi grid za male ekrane */
+    .time-grid {
+        grid-template-columns: 40px 1fr !important;
+    }
+}
+
+/* Za veoma male ekrane (iPhone SE i slično) */
+@media screen and (max-width: 375px) {
+    .appointment-card {
+        padding: 1px 2px;
+        min-height: 20px;
+    }
+    
+    .appointment-text {
+        font-size: 0.5rem;
+        /* Prikaži samo ime i vreme */
+    }
+    
+    .appointment-service {
+        display: none; /* Sakrij uslugu na malim ekranima */
     }
 }
 

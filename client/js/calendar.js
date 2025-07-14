@@ -1,5 +1,8 @@
 // Global variables for mobile view
-let activeEmployee = 'dragana'; // For mobile view
+let currentDate = new Date();
+let currentView = 'day';
+let selectedDate = null;
+let selectedAppointmentDate = null;
 
 // Calendar view functions
 
@@ -73,12 +76,8 @@ async function renderDayView() {
     if (isMobile()) {
         // Mobile view - show toggle buttons and active employee
         headerColumns.innerHTML = `
-            <div class="mobile-employee-toggle">
-                <button class="employee-toggle-btn ${activeEmployee === 'dragana' ? 'active' : ''}" 
-                        onclick="setActiveEmployee('dragana')">Dragana</button>
-                <button class="employee-toggle-btn ${activeEmployee === 'snezana' ? 'active' : ''}" 
-                        onclick="setActiveEmployee('snezana')">Snežana</button>
-            </div>
+            <div class="employee-header dragana">Dragana</div>
+            <div class="employee-header snezana">Snežana</div>
         `;
     } else {
         // Desktop view - show both columns
@@ -99,11 +98,11 @@ async function renderDayView() {
     scheduleGrid.innerHTML = '';
     
     // Render employee columns
-    const employeesToRender = isMobile() ? [activeEmployee] : ['dragana', 'snezana'];
+    const employeesToRender = ['dragana', 'snezana']; // Uvek prikaži oba zaposlena
     
     employeesToRender.forEach((employee, index) => {
         const column = document.createElement('div');
-        column.className = `employee-column ${isMobile() ? 'active' : ''}`;
+        column.className = 'employee-column';
         column.id = `${employee}-column`;
         
         // Create time slots (26 slots for 8:00-21:00)
@@ -503,12 +502,6 @@ function isDateToday(date) {
     return date.toDateString() === today.toDateString();
 }
 
-// Set active employee for mobile view
-function setActiveEmployee(employee) {
-    activeEmployee = employee;
-    renderCalendar();
-}
-
 // Date Picker functionality
 let pickerDate = new Date();
 
@@ -597,7 +590,6 @@ window.selectToday = selectToday;
 
 // Appointment Date Picker functionality
 let appointmentPickerDate = new Date();
-let selectedAppointmentDate = null;
 
 function openAppointmentDatePicker() {
     appointmentPickerDate = selectedAppointmentDate ? new Date(selectedAppointmentDate) : new Date();
