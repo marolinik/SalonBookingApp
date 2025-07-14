@@ -107,14 +107,15 @@ function formatDateISO(date) {
 }
 
 // Initialize database and start server
-initDatabase();
-
-app.listen(PORT, () => {
-    console.log(`
+(async () => {
+    await initDatabase();
+    
+    app.listen(PORT, () => {
+        console.log(`
 🚀 Helios Server je pokrenut!
 📍 Port: ${PORT}
 🌐 URL: http://localhost:${PORT}
-📱 API: http://localhost:${PORT}/api
-🔐 Korisnici: dragana (dragana123), snezana (snezana123)
-    `);
-}); 
+📊 Baza: ${process.env.DATABASE_URL ? 'PostgreSQL' : 'SQLite'}
+        `);
+    });
+})(); 

@@ -89,7 +89,7 @@ async function initDatabase() {
             
             await pool.query(
                 'INSERT INTO users (username, password, ime) VALUES ($1, $2, $3)',
-                ['dragana', bcrypt.hashSync('dragana123', 10), 'Dragana Stamenković']
+                ['dragana', bcrypt.hashSync('dragana123', 10), 'Dragana Obradović']
             );
             
             await pool.query(
