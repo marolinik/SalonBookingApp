@@ -10,20 +10,26 @@ router.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
 
+        console.log('Login pokušaj za korisnika:', username);
+
         // Validacija
         if (!username || !password) {
             return res.status(400).json({ error: 'Username i password su obavezni' });
         }
 
         // Pronađi korisnika
+        console.log('Tražim korisnika sa username:', username);
         const user = await getOne('SELECT * FROM users WHERE username = ?', [username]);
+        console.log('Rezultat pretrage:', user ? `Korisnik pronađen: ${user.username}` : 'Korisnik nije pronađen');
 
         if (!user) {
             return res.status(401).json({ error: 'Pogrešno korisničko ime ili lozinka' });
         }
 
         // Proveri lozinku
+        console.log('Provera lozinke za korisnika:', user.username);
         const isValidPassword = await bcrypt.compare(password, user.password);
+        console.log('Lozinka validna:', isValidPassword);
 
         if (!isValidPassword) {
             return res.status(401).json({ error: 'Pogrešno korisničko ime ili lozinka' });

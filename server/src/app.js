@@ -39,8 +39,53 @@ app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'OK', 
         timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development'
+        database: process.env.DATABASE_URL ? 'PostgreSQL' : 'SQLite'
     });
+});
+
+// Debug endpoint - samo za testiranje
+app.get('/api/debug/users', async (req, res) => {
+    try {
+        const { getAll } = require('./db/database');
+        const users = await getAll('SELECT id, username, ime FROM users');
+        res.json({
+            count: users.length,
+            users: users,
+            database: process.env.DATABASE_URL ? 'PostgreSQL' : 'SQLite'
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Debug endpoint - kreiranje korisnika
+app.post('/api/debug/create-users', async (req, res) => {
+    try {
+        const { runQuery, getAll } = require('./db/database');
+        const bcrypt = require('bcryptjs');
+        
+        // Obriši postojeće korisnike
+        await runQuery('DELETE FROM users');
+        
+        // Kreiraj nove korisnike
+        await runQuery(
+            'INSERT INTO users (username, password, ime) VALUES (?, ?, ?)',
+            ['dragana', await bcrypt.hash('dragana123', 10), 'Dragana Obradović']
+        );
+        
+        await runQuery(
+            'INSERT INTO users (username, password, ime) VALUES (?, ?, ?)',
+            ['snezana', await bcrypt.hash('snezana123', 10), 'Snežana Stamenković']
+        );
+        
+        const users = await getAll('SELECT id, username, ime FROM users');
+        res.json({
+            message: 'Korisnici uspešno kreirani',
+            users: users
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // Serve index.html for all other routes (SPA support)
@@ -108,7 +153,9 @@ function formatDateISO(date) {
 
 // Initialize database and start server
 (async () => {
+    console.log('🔄 Pokrećem inicijalizaciju baze podataka...');
     await initDatabase();
+    console.log('✅ Baza podataka inicijalizovana');
     
     app.listen(PORT, () => {
         console.log(`
@@ -116,6 +163,7 @@ function formatDateISO(date) {
 📍 Port: ${PORT}
 🌐 URL: http://localhost:${PORT}
 📊 Baza: ${process.env.DATABASE_URL ? 'PostgreSQL' : 'SQLite'}
+🔐 JWT Secret: ${process.env.JWT_SECRET ? 'Postavljen' : 'Koristi se default'}
         `);
     });
 })(); 

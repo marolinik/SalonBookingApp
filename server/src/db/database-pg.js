@@ -91,11 +91,17 @@ async function initDatabase() {
                 'INSERT INTO users (username, password, ime) VALUES ($1, $2, $3)',
                 ['dragana', bcrypt.hashSync('dragana123', 10), 'Dragana Obradović']
             );
+            console.log('✅ Kreiran korisnik: dragana');
             
             await pool.query(
                 'INSERT INTO users (username, password, ime) VALUES ($1, $2, $3)',
                 ['snezana', bcrypt.hashSync('snezana123', 10), 'Snežana Stamenković']
             );
+            console.log('✅ Kreiran korisnik: snezana');
+            
+            // Verifikuj da su korisnici kreirani
+            const checkUsers = await pool.query('SELECT username, ime FROM users');
+            console.log('📋 Kreirani korisnici:', checkUsers.rows);
         }
 
         // Dodaj default usluge ako ne postoje
